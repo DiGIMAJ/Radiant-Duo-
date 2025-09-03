@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 import { GamingButton } from "@/components/ui/gaming-button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,30 +18,25 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session?.user) {
-          // Check if user has completed onboarding
-          supabase
-            .from('profiles')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single()
-            .then(({ data }) => {
-              if (!data || !data.username) {
-                navigate("/onboarding");
-              } else {
-                navigate("/swipe");
-              }
-            });
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (user) {
+      // Check if user has completed onboarding
+      apiClient.getProfile()
+        .then((profile) => {
+          if (!profile || !profile.username) {
+            navigate("/onboarding");
+          } else {
+            navigate("/swipe");
+          }
+        })
+        .catch(() => {
+          // Profile not found, redirect to onboarding
+          navigate("/onboarding");
+        });
+    }
+  }, [user, navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,36 +44,25 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              username,
-              display_name: username
-            }
-          }
-        });
-
-        if (error) throw error;
-
+        await apiClient.register(email, password, username);
+        
         toast({
-          title: "Check your email",
-          description: "We sent you a verification link to complete your signup.",
+          title: "Account created!",
+          description: "Welcome! Please complete your profile setup.",
         });
+        
+        // Redirect to onboarding after successful registration
+        navigate("/onboarding");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
-
+        await apiClient.login(email, password);
+        
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in.",
         });
+        
+        // The useEffect will handle navigation based on profile completion
+        window.location.reload(); // Force auth state update
       }
     } catch (error: any) {
       toast({
@@ -92,14 +77,12 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        }
+      // Google OAuth not implemented in the new system yet
+      toast({
+        title: "Coming Soon",
+        description: "Google authentication will be available soon. Please use email signup for now.",
+        variant: "destructive",
       });
-
-      if (error) throw error;
     } catch (error: any) {
       toast({
         title: "Authentication Error",
