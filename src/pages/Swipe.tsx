@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { X, Heart, Shield, Mic, Clock } from "lucide-react";
 import { GamingButton } from "@/components/ui/gaming-button";
 import Navigation from "@/components/Navigation";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 

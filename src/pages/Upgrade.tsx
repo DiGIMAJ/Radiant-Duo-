@@ -2,7 +2,7 @@ import { Crown, Zap, Eye, Filter, Star, X } from "lucide-react";
 import { GamingButton } from "@/components/ui/gaming-button";
 import Navigation from "@/components/Navigation";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 const Upgrade = () => {
@@ -13,7 +13,7 @@ const Upgrade = () => {
   const handleUpgrade = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-polar-checkout', {
+      const { data, error } = await apiClient.functions.invoke('create-polar-checkout', {
         body: { 
           productId: 'radiant-duo-premium', // You'll need to set this up in Polar
           priceType: selectedPlan 

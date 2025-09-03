@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api";
 import { GamingButton } from "@/components/ui/gaming-button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api";
 import { GamingButton } from "@/components/ui/gaming-button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -101,7 +101,7 @@ const Onboarding = () => {
     const fileName = `${user.id}.${fileExt}`;
     const filePath = `${user.id}/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await apiClient.storage
       .from('avatars')
       .upload(filePath, file, { upsert: true });
 
@@ -109,7 +109,7 @@ const Onboarding = () => {
       throw uploadError;
     }
 
-    const { data } = supabase.storage
+    const { data } = apiClient.storage
       .from('avatars')
       .getPublicUrl(filePath);
 

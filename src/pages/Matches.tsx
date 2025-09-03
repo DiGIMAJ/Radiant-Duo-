@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, Shield, Clock } from "lucide-react";
 import Navigation from "@/components/Navigation";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
